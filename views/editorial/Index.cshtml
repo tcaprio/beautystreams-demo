@@ -1,0 +1,36 @@
+﻿@model Sabio.Web.Models.ViewModels.EditorialContentViewModel
+
+@{
+    ViewBag.Title = "TemplatesIndex";
+    Layout = "~/Views/Shared/_LayoutSourceHorizontal.cshtml";
+}
+<link href="~/Scripts/chosen/chosen.css" rel="stylesheet" />
+
+<div ng-view></div>
+
+<script type="application/json" id="editorialStatus">
+    @Html.RawJson(Model.EditorialStatusEnum.ToDictionaryByValue())
+</script>
+
+
+@section scripts{
+<!--scripts for ngRouting for tabs-->
+<script src="~/Scripts/sabio/editorial/editorial.config.js"></script>
+<script src="~/Scripts/sabio/editorial/controllers/editorialAttributesController.js"></script>
+<script src="~/Scripts/sabio/editorial/controllers/editorialContentController.js"></script>
+<script src="~/Scripts/sabio/editorial/controllers/editorialContentPreviewController.js"></script>
+<script src="~/Scripts/sabio/editorial/controllers/editorialMediasController.js"></script>
+<script src="~/Scripts/sabio/editorial/controllers/editorialRelatedController.js"></script>
+<script src="~/Scripts/sabio/editorial/controllers/editorialIndexController.js"></script>
+<script src="~/Scripts/sabio/editorial/controllers/editorialTaggingController.js"></script>
+<script src="~/Scripts/sabio/editorial/controllers/modal/editorialMediaBucketController.js"></script>
+<script src="~/Scripts/sabio/editorial/editorialContentConstants.js"></script>
+
+<!--scripts for editorials/manage-->
+
+<script src="~/Scripts/chosen/chosen.jquery.js"></script>
+<script src="~/Scripts/chosen/chosen.proto.js"></script>
+
+<link href="~/Content/tree-control-attribute.css" rel="stylesheet" />
+    
+}

@@ -1,0 +1,770 @@
+﻿<div id="content-editor-main" class="clearfix">
+
+
+    <div id="editor-left-menu">
+        <div class="container-fluid">
+            <!--default menu content or design-nothing selected-->
+            <div ng-show="contentCtrl.showDefaultMenu">
+                <div class="col-md-12 p-t-10">
+                    <ul class="nav nav-pills nav-pills-white nav-justified p-t-10"
+                        ng-show="!contentCtrl.designOptSelected">
+                        <li ng-class="{'active': contentCtrl.activeDefaultMenuTab==1}">
+                            <a ng-click="contentCtrl.activeDefaultMenuTab=1">
+                                Content
+                            </a>
+                        </li>
+                        <li ng-class="{'active': contentCtrl.activeDefaultMenuTab==2}">
+                            <a ng-click="contentCtrl.activeDefaultMenuTab=2">
+                                Design
+                            </a>
+                        </li>
+                    </ul>
+                    <h4 ng-show="contentCtrl.designOptSelected" class="text-center"><a class="no-deco text-inverse" ng-click="contentCtrl.designOptSelected=false; contentCtrl.designOptSelection=null;"><i class="fa fa-arrow-left pull-left"></i>{{contentCtrl.designOptSelection}}</a></h4>
+                    <hr />
+                    <br />
+                    <div class="">
+                        <div class="" ng-show="contentCtrl.activeDefaultMenuTab==1">
+                            <div class="row">
+                                <div class="center-block">
+                                    <div class="col-md-3 btn btn-icon btn-inverse btn-lg widget widget-stat m-10" style="height:105px; width: 105px; text-align:center;"
+                                         ng-repeat="item in contentCtrl.elTemplates"
+                                         dnd-draggable="item"
+                                         dnd-effect-allowed="copy"
+                                         dnd-copied="contentCtrl.findParentCol(item, 2)">
+                                        <div>
+                                            <a class="text-center" style="text-decoration:none;" tooltip-class="customClass" uib-tooltip="{{item.name}}">
+                                                <i class="fa fa-2x fa-align-center text-muted {{item.icon}}"></i>
+                                                <p class="text-center-sm text-muted" style="white-space:pre-wrap; font-size: .9em;">{{item.name}}</p>
+                                            </a>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="" ng-show="contentCtrl.activeDefaultMenuTab==2">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <ul class="nav editor-opts" ng-show="!contentCtrl.designOptSelected">
+                                        <li><a class="text-inverse" ng-click="contentCtrl.designOptSelection='Editorial Image Linking'; contentCtrl.openEditorialLinkingImageBankModal()">Editorial Image Linking<i class="fa fa-arrow-right pull-right"></i></a></li>
+                                        <li><a class="text-inverse" ng-click="contentCtrl.designOptSelection='Add Row'; contentCtrl.designOptSelected=true">Add Row <i class="fa fa-arrow-right pull-right"></i></a></li>
+                                    </ul>
+                                    <div ng-show="contentCtrl.designOptSelection=='Add Row'">
+                                        <form name="addRow" id="addRow">
+                                            <div class="form-group">
+                                                <div class="form-group">
+                                                    <label class="control-label">Columns</label>
+                                                    <select class="form-control"
+                                                            ng-options="item.id as item.label for item in contentCtrl.columnOptions"
+                                                            ng-model="contentCtrl.newRow.columns"
+                                                            ng-change="contentCtrl.addNewColumns();"></select>
+                                                </div>
+                                                <hr />
+                                                <h4>Column Width</h4>
+                                                <div class='alert alert-bordered' ng-class="{'alert-warning': contentCtrl.getTotalColWidth() != 12, 'alert-success': contentCtrl.getTotalColWidth()==12}">
+                                                    <h5>Total Width: {{contentCtrl.getTotalColWidth()}}</h5>
+                                                    <p class="text-danger" ng-show="contentCtrl.getTotalColWidth() != 12">Total width must equal 12</p>
+                                                </div>
+                                                <div class="form-group" ng-repeat="columns in contentCtrl.newRow.columnData">
+                                                    <label class="control-label">Column {{columns.contentOptions.columnId + 1}}</label>
+                                                    <select class="form-control"
+                                                            ng-options="item.width as item.label for item in contentCtrl.columnWidthOptions"
+                                                            ng-model="columns.contentOptions.columnWidth"></select>
+                                                </div>
+                                                <div class="form-group" ng-show="contentCtrl.getTotalColWidth() === 12">
+                                                    <a class="btn btn-success"
+                                                       ng-click="contentCtrl.addRow();">Add Row</a>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <hr />
+                                    <div ng-show="contentCtrl.dndListCols.length > 1">
+                                        <h4>Drag to Reorder Rows</h4>
+                                        <ul dnd-list="contentCtrl.dndListCols"
+                                            class="dzDndList list-unstyled">
+                                            <li ng-repeat="row in contentCtrl.dndListCols track by $index"
+                                                dnd-draggable="row"
+                                                dnd-effect-allowed="move"
+                                                dnd-moved="contentCtrl.dndListCols.splice($index, 1); contentCtrl.updateRowOrder()"
+                                                class="p-b-5">
+                                                    <button class="btn btn-inverse btn-block" type="button">Row {{$index + 1}}</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--edit menu-->
+            <div ng-show="contentCtrl.editing" class="p-t-10">
+                <h4 class="text-center text-inverse">{{contentCtrl.currentItemType}}</h4>
+                <ul class="nav nav-pills nav-pills-white nav-justified p-t-10" ng-show="contentCtrl.currentItemTypeId!=10">
+                    <li ng-class="{'active': contentCtrl.activeEditTab==1}">
+                        <a ng-click="contentCtrl.activeEditTab=1">Content</a>
+                    </li>
+                    <li ng-class="{'active': contentCtrl.activeEditTab==2}">
+                        <a ng-click="contentCtrl.activeEditTab=2"
+                           ng-show="contentCtrl.currentItemTypeId!=10">Style</a>
+                    </li>
+                    <li ng-class="{'active': contentCtrl.activeEditTab==3}">
+                        <a ng-click="contentCtrl.activeEditTab=3">Settings</a>
+                    </li>
+                    <li ng-class="{'active': contentCtrl.activeEditTab==4}">
+                        <a ng-click="contentCtrl.activeEditTab=4">Link/Tag</a>
+                    </li>
+                </ul>
+                <div class="col-md-12" ng-show="contentCtrl.activeEditTab!=4">
+                    <!--nav menu for all but divider & custom code-->
+                    
+                    <!--edit tabs-->
+                    <form name="editorialContentEditor" id="editorialContentEditor" ng-submit="contentCtrl.updateContent(contentCtrl.currentItem)">
+                        <!--begin tab 1-->
+                        <div class="p-t-20" ng-show="contentCtrl.activeEditTab===1">
+                            <div ng-class="{'active in' : contentCtrl.activeEditTab === 1}">
+                                <!--video url input (show for video only)-->
+                                <div class="row border-bottom-1" ng-show="contentCtrl.currentItem.contentTypeId=== 9">
+                                    <div class="center-horizontal">
+                                        <div class="button-group">
+                                            <a href="http://youtube.com" target="_blank" type="button" class="btn btn-danger">YouTube<i class="fa fa-youtube fa-pull-left"></i></a>
+                                            <a href="http://vimeo.com" target="_blank" type="button" class="btn btn-info">Vimeo<i class="fa fa-vimeo fa-pull-left"></i></a>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="form-group">
+                                        <label class="control-label">Auto-Play</label>
+                                        <select class="form-control" ng-options="item.value as item.label for item in contentCtrl.videoAutoPlayOptions"
+                                                ng-model="contentCtrl.currentItem.contentOptions.videoAutoPlay"></select>
+                                    </div>
+                                    <br />
+                                    <div class="form-group">
+                                        <label>Video URL</label>
+                                        <input type="text" class="form-control input" ng-model="contentCtrl.currentItem.contentOptions.videoUrl" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Width</label>
+                                        <input type="text" class="form-control input" ng-model="contentCtrl.currentItem.contentOptions.vidWidth" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Height</label>
+                                        <input type="text" class="form-control input" ng-model="contentCtrl.currentItem.contentOptions.vidHeight" />
+                                    </div>
+                                    <br />
+
+                                </div>
+                                <!--image selector-->
+                                <div ng-show="contentCtrl.currentItemHasImage === true">
+                                    <div class="row border-bottom-1">
+                                        <h4>Main</h4>
+                                        <h5>Select an Image</h5>
+                                        <ul class="list-unstyled">
+                                            <li ng-repeat="img in contentCtrl.linkedMedia">
+                                                <div class="col-md-4 p-b-5">
+                                                    <a ng-click="contentCtrl.setMedia(img.mediaId, contentCtrl.currentItem)">
+                                                        <img class="img-responsive" ng-src="{{img.mediaFullUrl}}" />
+                                                    </a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <br />
+                                </div>
+                                <!--text editor (show only for items with text elements)-->
+                                <div class="row" ng-show="contentCtrl.hideWysiwyg === false">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Font Family</label>
+                                            <select class="form-control"
+                                                    ng-options="item.label as item.fontFamily for item in contentCtrl.fontOptions"
+                                                    ng-model="contentCtrl.currentItem.contentOptions.fontFamily"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Font Size</label>
+                                            <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.fontSize" placeholder="12" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row" ng-show="contentCtrl.currentItemTypeId!=10">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label">Font Color</label>
+                                            <input class="form-control" colorpicker="rgba" colorpicker-with-input="true" colorpicker-position="top" ng-model="contentCtrl.currentItem.contentOptions.fontColor" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label">Outline Weight</label>
+                                            <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.fontStrokeWeight" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label">Outline Color</label>
+                                            <input class="form-control" colorpicker="rgba" colorpicker-with-input="true" colorpicker-position="top" ng-model="contentCtrl.currentItem.contentOptions.fontStrokeColor" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="" ng-show="contentCtrl.currentItem.contentTypeId === 4">
+                                    <h4>Overlay</h4>
+                                    <div class="button-group">
+                                        <a class="btn btn-default btn-sm" ng-click="contentCtrl.addOverlay('text')"><i class="fa fa-align-right"></i> Text</a>
+                                        <a class="btn btn-default btn-sm" ng-show="contentCtrl.currentItem.contentTypeId===4" ng-click="contentCtrl.addOverlay('button')"><i class="fa fa-youtube-play"></i> Button</a>
+                                        <a class="btn btn-default btn-sm" ng-click="contentCtrl.addOverlay('image')"><i class="fa fa-file-image-o"></i> Image</a>
+                                    </div>
+                                    <br />
+                                    <div ng-show="contentCtrl.overlay">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Pos Top</label>
+                                                    <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.overlayTop" />
+                                                </div>
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Pos Left</label>
+                                                    <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.overlayLeft" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Min Width</label>
+                                                    <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.overlayMinWidth" />
+                                                </div>
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Min Height</label>
+                                                    <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.overlayMinHeight" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Max Width</label>
+                                                    <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.overlayMaxWidth" />
+                                                </div>
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Max Height</label>
+                                                    <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.overlayMaxHeight" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="control-label">Padding</label>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group-sm">
+                                                            <label class="control-label">Top</label>
+                                                            <select class="form-control" ng-options="item.custClass as item.label for item in contentCtrl.paddingOptions"
+                                                                    ng-model="contentCtrl.currentItem.contentOptions.overlayPaddingTop"></select>
+                                                        </div>
+                                                        <div class="form-group-sm">
+                                                            <label class="control-label">Bottom</label>
+                                                            <select class="form-control" ng-options="item.custClass as item.label for item in contentCtrl.paddingOptions"
+                                                                    ng-model="contentCtrl.currentItem.contentOptions.overlayPaddingBottom"></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group-sm">
+                                                            <label class="control-label">Right</label>
+                                                            <select class="form-control" ng-options="item.custClass as item.label for item in contentCtrl.paddingOptions"
+                                                                    ng-model="contentCtrl.currentItem.contentOptions.overlayPaddingRight"></select>
+                                                        </div>
+                                                        <div class="form-group-sm">
+                                                            <label class="control-label">Left</label>
+                                                            <select class="form-control" ng-options="item.custClass as item.label for item in contentCtrl.paddingOptions"
+                                                                    ng-model="contentCtrl.currentItem.contentOptions.overlayPaddingLeft"></select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6" ng-show="contentCtrl.overlayType != 'image'">
+                                                <label class="control-label">Background</label>
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Color</label>
+                                                    <input class="form-control" colorpicker="rgba" colorpicker-with-input="true" colorpicker-position="top"
+                                                           ng-model="contentCtrl.currentItem.contentOptions.overlayBg" type="text" />
+                                                </div>
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Shape</label>
+                                                    <select class="form-control"
+                                                            ng-options="item.custClass as item.label for item in contentCtrl.shapeOptions"
+                                                            ng-model="contentCtrl.currentItem.contentOptions.overlayShape"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Border</label>
+                                                    <select class="form-control"
+                                                            ng-options="item.custClass as item.label for item in contentCtrl.borderOptions"
+                                                            ng-model="contentCtrl.currentItem.contentOptions.overlayBorder"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6" ng-show="contentCtrl.currentItem.contentOptions.overlayBorder != 'none'">
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Border Color</label>
+                                                    <input class="form-control" colorpicker="rgba" colorpicker-with-input="true" colorpicker-position="top"
+                                                           ng-model="contentCtrl.currentItem.contentOptions.overlayBorderColor" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" ng-show="contentCtrl.currentItem.contentOptions.overlayBorder != 'none'">
+                                                <div class="form-group-sm">
+                                                    <label class="control-label">Border Width</label>
+                                                    <select class="form-control"
+                                                            ng-options="item.custClass as item.label for item in contentCtrl.borderWidthOptions"
+                                                            ng-model="contentCtrl.currentItem.contentOptions.overlayBorderWidth"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12" ng-show="contentCtrl.overlayType ==='image'">
+                                                <h5>Select an Image for Overlay</h5>
+                                                <ul class="list-unstyled">
+                                                    <li ng-repeat="img in contentCtrl.linkedMedia">
+                                                        <div class="col-md-4 p-b-5">
+                                                            <a ng-click="contentCtrl.setMediaOverlay(img)">
+                                                                <img class="img-responsive" ng-src="{{img.mediaFullUrl}}" />
+                                                            </a>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+
+                                <div ng-show="contentCtrl.hideWysiwyg === false">
+                                    <wysiwyg-edit content="contentCtrl.currentItem.pageContent" config="editorConfig" ng-model="contentCtrl.currentItem.pageContent"></wysiwyg-edit>
+                                </div>
+                                <!--plain textarea editor for custom html elements-->
+                                <div class="row" ng-show="contentCtrl.hideWysiwyg === true && contentCtrl.currentItemType === 'Custom Html'">
+                                    <label class="control-label">Input custom Html:</label>
+                                    <textarea ng-model="contentCtrl.currentItem.pageContent" class="form-control input-lg" rows="20"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--end tab 1-->
+                        <!--begin tab 2-->
+                        <div class="p-t-20" ng-show="contentCtrl.activeEditTab===2">
+                            <div ng-class="{'active in' : contentCtrl.activeEditTab === 2}"
+                                 ng-show="contentCtrl.activeEditTab===2">
+                                <!--shape options-->
+                                <div ng-show="contentCtrl.currentItem.contentTypeId == 1 || contentCtrl.currentItem.contentTypeId == 8">
+                                    <div class="form-group">
+                                        <label class="control-label">Background Shape</label>
+                                        <select class="form-control"
+                                                ng-options="item.custClass as item.label for item in contentCtrl.shapeOptions"
+                                                ng-model="contentCtrl.currentItem.contentOptions.bgShape"></select>
+                                    </div>
+                                </div>
+                                <!--border options-->
+                                <div ng-show="contentCtrl.currentItemType != 'Divider' && contentCtrl.currentItemType !='Custom Html'">
+                                    <div class="form-group" ng-show="contentCtrl.currentItemType != 'Image'">
+                                        <label class="control-label">Background Color</label>
+                                        <input class="form-control input" colorpicker="rgba" colorpicker-with-input="true" colorpicker-position="top"
+                                               ng-model="contentCtrl.currentItem.contentOptions.bgcolor" type="text" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Border</label>
+                                        <select class="form-control input"
+                                                ng-options="item.custClass as item.label for item in contentCtrl.borderOptions"
+                                                ng-model="contentCtrl.currentItem.contentOptions.border"></select>
+                                    </div>
+                                    <div class="form-group" ng-show="contentCtrl.currentItem.contentOptions.border != 'none' && contentCtrl.currentItem.contentOptions.border != 'Button'">
+                                        <label class="control-label">Border Color</label>
+                                        <input class="form-control input" colorpicker="rgba" colorpicker-with-input="true" colorpicker-position="top" ng-model="contentCtrl.currentItem.contentOptions.borderColor" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="contentCtrl.currentItemType != 'Button' && contentCtrl.currentItem.contentOptions.border !='none'">
+                                    <label class="control-label">Border Width</label>
+                                    <select class="form-control input"
+                                            ng-options="item.custClass as item.label for item in contentCtrl.borderWidthOptions"
+                                            ng-model="contentCtrl.currentItem.contentOptions.borderWidth"></select>
+                                </div>
+                                <!--divider options-->
+                                <div ng-show="contentCtrl.currentItemType ==='Divider'">
+                                    <div class="form-group">
+                                        <label class="control-label">Style</label>
+                                        <select class="form-control input"
+                                                ng-options="item.custClass as item.label for item in contentCtrl.dividerOptions"
+                                                ng-model="contentCtrl.currentItem.contentOptions.dividerStyle"></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Color</label>
+                                        <input class="form-control input" colorpicker="rgba" colorpicker-with-input="true" colorpicker-position="top" ng-model="contentCtrl.currentItem.contentOptions.dividerColor" type="text" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Space Above</label>
+                                        <select class="form-control input"
+                                                ng-options="item.custClass as item.label for item in contentCtrl.marginTopOptions"
+                                                ng-model="contentCtrl.currentItem.contentOptions.spcAbove"></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Space Below</label>
+                                        <select class="form-control input"
+                                                ng-options="item.custClass as item.label for item in contentCtrl.marginBottomOptions"
+                                                ng-model="contentCtrl.currentItem.contentOptions.spcBelow"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--end tab 2-->
+                        <!--begin tab 3-->
+                        <div class="p-t-20" ng-show="contentCtrl.activeEditTab===3">
+                            <div ng-class="{'active in' : contentCtrl.activeEditTab === 3}"
+                                 ng-show="contentCtrl.activeEditTab===3">
+                                <!--options for elements containing images-->
+                                <div class="form-group" ng-show="contentCtrl.currentItemHasImage">
+                                    <h4>Dimensions</h4>
+                                    <div class="row">
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Min Height</label>
+                                                <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.imgMinHeight" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Min Width</label>
+                                                <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.imgMinWidth" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Width</label>
+                                                <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.imgWidth" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Height</label>
+                                                <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.imgHeight" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" ng-show="contentCtrl.currentItemHasImage === true && contentCtrl.currentItemType !='Image Group'">
+                                    <h4>Positioning</h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Position X</label>
+                                                <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.imgPosX" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Position Y</label>
+                                                <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.imgPosY" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group" ng-show="contentCtrl.currentItemType === 'Image + Caption'">
+                                                <label class="control-label">Image Alignment</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.alignmentOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.imgAlignment"></select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group" ng-show="contentCtrl.currentItemType === 'Image + Caption'">
+                                                <label class="control-label">Caption Position</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.positionOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.captionPos"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div ng-show="contentCtrl.currentItemType == 'Button'">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Button Alignment</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.buttonAlignmentOpts"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.buttonAlignment"></select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Border Radius</label>
+                                                <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentOptions.borderRadius" />
+                                            </div>
+                                        </div>
+                                    </div>                                                                            
+                                </div>
+                                
+
+                                <!--padding options for text elements-->
+                                <h4>Padding</h4>
+                                <div class="form-group" ng-show="contentCtrl.hideWysiwyg === false && contentCtrl.currentItemType !='Image'">
+                                    <div class="row">
+                                        <h5 class="p-l-10">Text</h5>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Top</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.paddingTopOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.paddingTop"></select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Right</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.paddingRightOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.paddingRight"></select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Bottom</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.paddingBottomOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.paddingBottom"></select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Left</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.paddingLeftOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.paddingLeft"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="contentCtrl.currentItemHasImage === true || contentCtrl.currentItem.contentTypeId===9">
+                                    <h5>Image/Video</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Top</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.paddingTopOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.imgPaddingTop"></select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Right</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.paddingRightOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.imgPaddingRight"></select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="control-label">Bottom</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.paddingBottomOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.imgPaddingBottom"></select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Left</label>
+                                                <select class="form-control"
+                                                        ng-options="item.custClass as item.label for item in contentCtrl.paddingLeftOptions"
+                                                        ng-model="contentCtrl.currentItem.contentOptions.imgPaddingLeft"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!--end tab 3-->
+                        <div class="button-group p-b-20 p-t-20 pull-right">
+                            <button type="button" class="btn btn-default" ng-click="contentCtrl.cancelEdit();">Cancel</button>
+                            <button type="submit" class="btn btn-success">Save and Close</button>
+                        </div>
+                    </form>
+                </div>
+                <!--link/tag tab-->
+                <div class="p-t-20" ng-show="contentCtrl.activeEditTab==4">
+                    <ul class="nav editor-opts" ng-show="!contentCtrl.linkTagSelected">
+                        <li><a class="text-inverse" ng-click="contentCtrl.linkTagSelection='Link'; contentCtrl.linkTagSelected=true">Link <i class="fa fa-arrow-right pull-right"></i></a></li>
+                        <li><a class="text-inverse" ng-click="contentCtrl.linkTagSelection='Tag'; contentCtrl.linkTagSelected=true">Tag <i class="fa fa-arrow-right pull-right"></i></a></li>
+                    </ul>
+                    <h4 class="text-center" ng-show="contentCtrl.linkTagSelected"><a class="text-inverse no-deco" ng-click="contentCtrl.linkTagSelected=false; contentCtrl.linkTagSelection=null">{{contentCtrl.linkTagSelection}}<i class="fa fa-arrow-left pull-left"></i></a></h4>
+                    <div ng-show="contentCtrl.linkTagSelection=='Link'">
+                        <div class="form-group">
+                            <label class="control-label">Role</label>
+                            <select class="form-control"
+                                    ng-options="item.role as item.label for item in contentCtrl.linkingRoles"
+                                    ng-model="contentCtrl.currentItem.contentLinking.type"
+                                    ng-change="contentCtrl.setRoleLinkOptions()"></select>
+                        </div>
+                        <div class="form-group" ng-show="contentCtrl.currentItem.contentLinking.type === 'clipping'">
+                            <label class="control-label">Media Id</label>
+                            <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentLinking.link" />
+                        </div>
+                        <div class="form-group" ng-show="contentCtrl.currentItem.contentLinking.type === 'editorialAnchor'">
+                            <label class="control-label">Editorial Id</label>
+                            <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentLinking.link" />
+                        </div>
+                        <div class="form-group" ng-show="contentCtrl.currentItem.contentLinking.type === 'imageBankSearch'">
+                            <button class="btn btn-inverse" ng-click="contentCtrl.openImageBankModal(contentCtrl.currentItem)">Select Images</button>
+                        </div>
+                        <div claass="form-group" ng-show="contentCtrl.currentItem.contentLinking.type ==='url'">
+                            <label class="control-label">URL</label>
+                            <input class="form-control" type="text" ng-model="contentCtrl.currentItem.contentLinking.link" />
+                        </div>
+                        <br />
+                        <div class="button-group pull-right">
+                            <button type="button" class="btn btn-default" ng-click="contentCtrl.cancelEdit();">Cancel</button>
+                            <button type="button" class="btn btn-success" ng-click="contentCtrl.submitContentLinking();">Save</button>
+                        </div>
+                    </div>
+                    <div ng-show="contentCtrl.linkTagSelection=='Tag'">
+
+                    </div>
+                </div>
+            </div>
+            <!--row menu-->
+            <div ng-show="contentCtrl.rowEdit" class="p-t-10">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4 class="text-center text-inverse"><a ng-click="contentCtrl.goBack()" class="text-inverse no-deco">Row<i class="fa fa-arrow-left pull-left"></i></a></h4>
+                        <ul class="nav editor-opts" ng-show="!contentCtrl.rowOptSelected">
+                            <li><a class="text-inverse" ng-click="contentCtrl.rowOptSelection='Edit Row'; contentCtrl.rowOptSelected=true">Edit Row <i class="fa fa-arrow-right pull-right"></i></a></li>
+                            <li><a class="text-inverse" ng-click="contentCtrl.rowOptSelection='Copy Row'; contentCtrl.rowOptSelected=true">Copy Row <i class="fa fa-arrow-right pull-right"></i></a></li>
+                            <li><a class="text-inverse" ng-click="contentCtrl.rowOptSelection='Delete Row';contentCtrl.rowOptSelected=true">Delete Row<i class="fa fa-arrow-right pull-right"></i></a></li>                            
+                        </ul>
+
+                        <div ng-show="contentCtrl.rowOptSelection=='Edit Row'">
+                            <form name="editRow" id="editRow">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label class="control-label">Columns</label>
+                                        <select class="form-control"
+                                                ng-options="item.id as item.label for item in contentCtrl.columnOptions"
+                                                ng-model="contentCtrl.newRow.columns"
+                                                ng-change="contentCtrl.addNewColumns();"></select>
+                                    </div>
+                                    <hr />
+                                    <h4>Column Width</h4>
+                                    <div class='alert alert-bordered' ng-class="{'alert-warning': contentCtrl.getTotalColWidth() != 12, 'alert-success': contentCtrl.getTotalColWidth()==12}">
+                                        <h5>Total Width: {{contentCtrl.getTotalColWidth() }}</h5>
+                                        <p class="text-danger" ng-show="contentCtrl.getTotalColWidth() !=12">Total width must equal 12</p>
+                                    </div>                                   
+                                    <div class="form-group" ng-repeat="columns in contentCtrl.newRow.columnData">
+                                        <label class="control-label">Column {{columns.contentOptions.columnId + 1}}</label>
+                                        <select class="form-control"
+                                                ng-options="item.width as item.label for item in contentCtrl.columnWidthOptions"
+                                                ng-model="columns.contentOptions.columnWidth"></select>
+                                    </div>
+                                    <div class="form-group" ng-show="contentCtrl.getTotalColWidth() === 12">
+                                        <div class="alert alert-bordered alert-danger">
+                                            <p class="text-danger"><strong>Warning!</strong> Any row contents will be deleted if you proceed.</p>
+                                        </div>
+                                        <a class="btn btn-success"
+                                           ng-click="contentCtrl.editRow()">Edit Row</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div ng-show="contentCtrl.rowOptSelection=='Copy Row'">
+                            <form name="copyRow" id="copyRow">
+                                <div class="form-group">
+                                    <label class="control-label">Copy Selected Row?</label>
+
+                                </div>
+                                <div class="form-group">
+                                    <a class="btn btn-success"
+                                       ng-click="contentCtrl.addCopiedRow()">Yes</a>
+                                    <button type="button" class="btn btn-default" ng-click="contentCtrl.cancelEdit()">Cancel</button>
+
+                                </div>
+                            </form>
+                        </div>
+                        <div ng-show="contentCtrl.rowOptSelection=='Delete Row'">
+                            <form name="removeRow" id="removeRow" ng-submit="contentCtrl.deleteRow();">
+                                <div class="form-group">
+                                    <label class="control-label">Delete Seleted Row?</label>
+
+                                </div>
+                                <div class="alert alert-bordered alert-warning">
+                                    <p><strong>Warning! </strong>Deleting this row will also result in deletion of any contents contained within it.</p>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-warning">Delete Row</button>
+                                    <button type="button" class="btn btn-default" ng-click="contentCtrl.cancelEdit()">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+    <div id="editor-right-content">
+
+        <div class="row">
+            <div class="col-md-12">
+                <a ng-href="#/list/live" class="btn btn-white m-r-5" style="margin-left:20px;"><i class="fa fa-arrow-left"></i> Index</a>                
+                <a ng-href="#/editorial/{{contentCtrl.editorialId}}/attributes" class="btn btn-white m-r-5"><i class="fa fa-pencil"></i> Attributes</a>
+                <a ng-href="#/editorial/{{contentCtrl.editorialId}}/content/preview" class="btn btn-white m-r-5"><i class="fa fa-eye"></i> Preview</a>
+                <hr />
+            </div>
+
+        </div>
+
+        <div id="content-body">
+            <div class="row content-row" 
+                 ng-class="{'selected-row': contentCtrl.selectedRow.id===rows.id}"
+                 ng-repeat="rows in contentCtrl.dndListCols track by $index">
+                <div class="pull-left content-row-handle"><a ng-click="contentCtrl.selectRow(rows)"><i class="fa fa-plus fa-2x text-warning-light"></i></a></div>
+                <div ng-repeat="columns in rows.Children track by columns.sortOrder" class="content-column"
+                     ng-class="'col-md-'+ columns.contentOptions.columnWidth">
+                    <ul dnd-list="columns.Children"
+                        class="dzDndList list-unstyled"
+                        dnd-drop="contentCtrl.dropCallback(event, index, item, type)">
+                        <li ng-repeat="item in columns.Children"
+                            dnd-draggable="item"
+                            dnd-effect-allowed="move"
+                            dnd-moved="columns.Children.splice($index, 1); contentCtrl.findParentCol(item, 1);"
+                            ng-mouseenter="contentCtrl.showEdit(item);"
+                            ng-mouseleave="contentCtrl.hideEdit();">
+                            <div ng-class="{'selected-content': contentCtrl.editElement && contentCtrl.currentId===item.id, 
+                                            'editing-item': contentCtrl.editing && contentCtrl.currentId === item.id,
+                                            'content-item': !contentCtrl.editing || contentCtrl.currentId!=item.id}">
+                                <!--begin edit header-->
+                                <div class="top-edit"
+                                     ng-show="contentCtrl.editElement && contentCtrl.currentId===item.id">
+                                    <a class="ion-grid text-white fa-2x p-2"></a>
+                                    <div class="pull-right">
+                                        <a class="ion-edit text-white fa-2x p-2" ng-click="contentCtrl.launchEditor(item)"></a>
+                                        <a class="ion-ios-copy text-white fa-2x p-2" ng-click="contentCtrl.insert(item, (item.sortOrder + 1))"></a>
+                                        <a class="ion-trash-a text-white fa-2x p-2" ng-click="contentCtrl.delete(item.id)"></a>
+                                    </div>
+                                </div>
+                                <!--end edit header-->
+                                <div ng-include="'/Scripts/sabio/editorial/templates/content/'+ item.contentTypeId + '.html'"></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>                          
+    </div>
+    <div id="editor-menu-resizer"
+         beautystreams-resize-content-editor="vertical"
+         beautystreams-resize-content-editor-width="5"
+         beautystreams-resize-content-editor-left="#editor-left-menu"
+         beautystreams-resize-content-editor-right="#editor-right-content"
+         beautystreams-resize-content-editor-max="1000"
+         beautystreams-resize-content-editor-min="371">
+
+    </div>
+</div>
