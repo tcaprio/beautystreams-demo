@@ -1,3 +1,3 @@
-# beautystreams-demo
+# beautystreams-code samples
 
-This is a demonstration of the editorial content editor feature I built for the Beautystreams.com administrative UI.
+Here are some code samples for the editorial content editor feature I built for the Beautystreams.com administrative UI.
